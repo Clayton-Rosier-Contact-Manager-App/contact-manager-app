@@ -52,7 +52,6 @@ public class Application {
             Input userInput = new Input();
 
             int userSelection = userInput.getInt();
-            String newContactName = new String();
 
             switch (userSelection) {
                 case 1:
@@ -61,17 +60,29 @@ public class Application {
                     break;
                 case 2:
                     //adds a new contact
-                    newContactName = userInput.getString("Enter a name: ");
+                    String newContactName = userInput.getString("Enter a name: ");
                     String newContactNumber = userInput.getString("Enter a number: ");
 
                     Contact newContacts = new Contact(newContactName, newContactNumber);
-                    contactInfo.add(newContacts.getName() + " " + newContacts.getNumber());
 
-                    Files.write(contactsFile, contactInfo, StandardOpenOption.APPEND);
+                    contactInfo.add(newContacts.getName() + " | " + newContacts.getNumber());
+
+//                    for (int i = 0; i < contactInfo.size(); i++) {
+//
+//                        if (contactInfo.get(i).equalsIgnoreCase(contactInfo.get(contactInfo.size() - 1))) {
+//                            contactInfo.remove(i);
+//                        } else {
+//                            Files.write(contactsFile, contactInfo, StandardOpenOption.APPEND);
+//                        }
+//                        }
+
+
+//                    contactInfo.forEach(System.out::println);
+
+                    Files.write(contactsFile, contactInfo);
 
 
                     System.out.println(options);
-
                     break;
                 case 3:
                     //search contact by name
@@ -79,13 +90,12 @@ public class Application {
 
                     List<String> listOfContacts = Files.readAllLines(contactsFile);
 
-                    for (int i = 0; i < listOfContacts.size(); i++) {
-                        String[] name =  listOfContacts.get(i).split(" ");
+                    for (String listOfContact : listOfContacts) {
+                        String[] name = listOfContact.split(" //| ");
                         if (name[0].equalsIgnoreCase(nameToFind)) {
-                            System.out.println(listOfContacts.get(i));
+                            System.out.println(listOfContact);
                         }
                     }
-//                    Files.write(contactsFile, listOfContacts);
                     System.out.println(options);
                     break;
                 case 4:
@@ -95,7 +105,7 @@ public class Application {
                     listOfContacts = Files.readAllLines(contactsFile);
 
                     for (int i = 0; i < listOfContacts.size(); i++) {
-                       String[] name =  listOfContacts.get(i).split(" ");
+                       String[] name =  listOfContacts.get(i).split(" //| ");
                         if (name[0].equalsIgnoreCase(nameToDelete)) {
                             listOfContacts.remove(i);
                         }
@@ -107,9 +117,11 @@ public class Application {
                     break;
                 case 5:
                     //exit - write, then exit
+
                     dontExit = false;
                     break;
-            }
+
+                    }
 
         } while (dontExit);
     }

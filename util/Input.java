@@ -10,7 +10,6 @@ public class Input {
     }
 
     public String getString () {
-        System.out.println("Type something  ");
         String userInput = scanner.nextLine();
         System.out.println(userInput);
         return userInput;
