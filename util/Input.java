@@ -24,14 +24,14 @@ public class Input {
 
     }
 
-    public void yesNo() {
+    public boolean yesNo() {
         System.out.println("Would you like to continue?");
         String answer = scanner.nextLine();
 
         if (answer.contains("y") || answer.contains("Y")) {
-            System.out.println("true");
+            return true;
         } else {
-            System.out.println("false");
+            return false;
         }
     }
 

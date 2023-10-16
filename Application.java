@@ -12,6 +12,16 @@ import java.util.List;
 
 public class Application {
 
+    public static boolean findMatch(List<String> list, String nameToFind) {
+        for (int i = 0; i < list.size(); i++) {
+            String[] name =  list.get(i).split(" ");
+            if (name[0].equalsIgnoreCase(nameToFind)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static void main(String[] args) throws IOException {
 
         String contactDirectory = "./data";
@@ -45,6 +55,7 @@ public class Application {
 
 
         boolean dontExit = true;
+        List<String> listOfContacts = Files.readAllLines(contactsFile);
 
         do {
 
@@ -56,6 +67,8 @@ public class Application {
             switch (userSelection) {
                 case 1:
                     //view all contacts
+                    System.out.println("Name | Phone number\n" +
+                            "---------------");
                     System.out.println(Files.readString(contactsFile));
                     break;
                 case 2:
@@ -64,31 +77,30 @@ public class Application {
                     String newContactNumber = userInput.getString("Enter a number: ");
 
                     Contact newContacts = new Contact(newContactName, newContactNumber);
+                    System.out.println(listOfContacts.toString());
+                    if(findMatch(listOfContacts, newContactName)) {
+                        System.out.println("There's already a contact named Jane Doe. Do you want to overwrite it? (Yes/No)\n");
+                        boolean userAnswer = userInput.yesNo();
+                        if(userAnswer) {
+                            contactInfo.add(newContacts.getName() + " " + newContacts.getNumber());
+                            Files.write(contactsFile, listOfContacts);
+                        }
+                    } else {
+                        contactInfo.add(newContacts.getName() + " " + newContacts.getNumber());
+                    }
 
-                    contactInfo.add(newContacts.getName() + " | " + newContacts.getNumber());
 
-//                    for (int i = 0; i < contactInfo.size(); i++) {
-//
-//                        if (contactInfo.get(i).equalsIgnoreCase(contactInfo.get(contactInfo.size() - 1))) {
-//                            contactInfo.remove(i);
-//                        } else {
-//                            Files.write(contactsFile, contactInfo, StandardOpenOption.APPEND);
-//                        }
-//                        }
-
-
-//                    contactInfo.forEach(System.out::println);
-
-                    Files.write(contactsFile, contactInfo);
+                    Files.write(contactsFile, listOfContacts, StandardOpenOption.APPEND);
 
 
                     System.out.println(options);
+
                     break;
                 case 3:
                     //search contact by name
                     String nameToFind = userInput.getString("Enter the name of the contact you want to find:\n");
 
-                    List<String> listOfContacts = Files.readAllLines(contactsFile);
+                    listOfContacts = Files.readAllLines(contactsFile);
 
                     for (String listOfContact : listOfContacts) {
                         String[] name = listOfContact.split(" //| ");
