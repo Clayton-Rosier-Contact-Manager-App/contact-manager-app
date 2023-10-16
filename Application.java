@@ -31,11 +31,8 @@ public class Application {
         }
 
         ArrayList<String> contactInfo = new ArrayList<>();
-        Contact newContact = new Contact("will", "1234567891");
 
-        contactInfo.add(newContact.getName() + " " + newContact.getNumber());
 
-        Files.write(contactsFile, contactInfo);
 
         String options = "1. View contacts.\n" +
                 "2. Add a new contact.\n" +
@@ -46,33 +43,31 @@ public class Application {
 
         System.out.println(options);
 
-//        System.out.println("1. View contacts");
-//        System.out.println("2. Add new contact");
-//        System.out.println("3. Search contact by name");
-//        System.out.println("4. Delete an existing contact");
-//        System.out.println("5. Exit");
 
         boolean dontExit = true;
 
         do {
 
+            //declares a new Input obj
             Input userInput = new Input();
 
-            System.out.printf("%n");
             int userSelection = userInput.getInt();
+            String newContactName = new String();
 
             switch (userSelection) {
                 case 1:
-                    //view all contact
-
+                    //view all contacts
+                    System.out.println(Files.readString(contactsFile));
                     break;
                 case 2:
-
-                    String newContactName = userInput.getString("Enter a name: ");
+                    //adds a new contact
+                    newContactName = userInput.getString("Enter a name: ");
                     String newContactNumber = userInput.getString("Enter a number: ");
 
                     Contact newContacts = new Contact(newContactName, newContactNumber);
                     contactInfo.add(newContacts.getName() + " " + newContacts.getNumber());
+
+                    Files.write(contactsFile, contactInfo, StandardOpenOption.APPEND);
 
 
                     System.out.println(options);
@@ -80,21 +75,42 @@ public class Application {
                     break;
                 case 3:
                     //search contact by name
+                    String nameToFind = userInput.getString("Enter the name of the contact you want to find:\n");
+
+                    List<String> listOfContacts = Files.readAllLines(contactsFile);
+
+                    for (int i = 0; i < listOfContacts.size(); i++) {
+                        String[] name =  listOfContacts.get(i).split(" ");
+                        if (name[0].equalsIgnoreCase(nameToFind)) {
+                            System.out.println(listOfContacts.get(i));
+                        }
+                    }
+//                    Files.write(contactsFile, listOfContacts);
+                    System.out.println(options);
                     break;
                 case 4:
                     //delete contact
-                    List<String> listOfContacts = Files.readAllLines(contactList);
+                    String nameToDelete = userInput.getString("Enter the name of the contact you want to delete:\n");
 
+                    listOfContacts = Files.readAllLines(contactsFile);
+
+                    for (int i = 0; i < listOfContacts.size(); i++) {
+                       String[] name =  listOfContacts.get(i).split(" ");
+                        if (name[0].equalsIgnoreCase(nameToDelete)) {
+                            listOfContacts.remove(i);
+                        }
+                    }
+
+                    Files.write(contactsFile, listOfContacts);
+                    System.out.println(options);
 
                     break;
                 case 5:
                     //exit - write, then exit
-                    Files.write(contactsFile, contactInfo, StandardOpenOption.APPEND);
                     dontExit = false;
                     break;
             }
 
-        }while(dontExit);
+        } while (dontExit);
     }
-
 }
