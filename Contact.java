@@ -4,6 +4,8 @@ public class Contact {
 
     private String number;
 
+    public int increment = 0;
+
     public String getName() {
         return name;
     }
@@ -21,7 +23,9 @@ public class Contact {
     }
 
     public Contact(String name, String number) {
+        increment++;
         this.name = name;
         this.number = number;
+
     }
 }
