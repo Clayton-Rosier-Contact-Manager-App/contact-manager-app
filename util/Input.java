@@ -55,7 +55,6 @@ public class Input {
     public int getInt() {
 
         int returnNumber = 0;
-        System.out.printf("Enter your choice: %n");
         try {
             String string = getString();
             returnNumber = Integer.valueOf(string);

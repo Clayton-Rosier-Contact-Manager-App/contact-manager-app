@@ -46,7 +46,7 @@ public class ContactList {
             // replace the numbers with the formatted numbers
             String number = name[1].replaceFirst("(\\d{3})(\\d{3})(\\d+)", "($1)-$2-$3");
             // print the contact with the formatted number
-            System.out.printf("%15s | %s%n", name[0], number);
+            System.out.printf("%-15s | %-15s |%n", name[0], number);
 
         }
     }

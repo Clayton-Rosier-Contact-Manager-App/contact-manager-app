@@ -1,38 +1,52 @@
 import util.Input;
 
-import javax.print.DocFlavor;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.regex.Pattern;
+
 
 public class Application {
+
+    public static Path createDirectory(String directory, String file) {
+
+        Path contactList = Paths.get(directory);
+
+        if (Files.notExists(contactList)) {
+            try {
+                Files.createDirectory(contactList);
+            } catch (Exception e) {
+                System.out.println("Exception caught");
+            }
+        }
+
+        Path contactsFile = Paths.get(directory, file);
+
+        if (Files.notExists(contactsFile)) {
+            try {
+                Files.createFile(contactsFile);
+            } catch (Exception e) {
+                System.out.println("Exception caught");
+            }
+        }
+
+        return contactsFile;
+
+    }
+
+    public static String enforceNumberLength(Input input) {
+        String newContactNumber;
+        do {
+            newContactNumber = input.getString("Enter a valid number: ");
+
+        } while (newContactNumber.length() < 10 || newContactNumber.length() > 15);
+        return newContactNumber;
+    }
 
 
     public static void main(String[] args) throws IOException {
 
-        String contactDirectory = "./data";
-
-        Path contactList = Paths.get(contactDirectory);
-
-        if (Files.notExists(contactList)) {
-            Files.createDirectory(contactList);
-        }
-
-        String contact = "contacts.txt";
-
-        Path contactsFile = Paths.get(contactDirectory, contact);
-
-        if (Files.notExists(contactsFile)) {
-            Files.createFile(contactsFile);
-        }
-
+        Path contactsFile = createDirectory("./data", "contacts.txt");
 
         String options = "1. View contacts.\n" +
                 "2. Add a new contact.\n" +
@@ -47,7 +61,7 @@ public class Application {
         boolean dontExit = true;
         // initial read form the contacts.txt file to make sure listOfContacts is up to date
         ContactList listOfContacts = new ContactList(contactsFile);
-        System.out.println(listOfContacts.contactList.size());
+
 
         do {
 
@@ -61,8 +75,8 @@ public class Application {
                 case 1:
 
                     //view all contacts
-                    System.out.printf("%15s | Phone number\n" +
-                            "%10s--------------------%n", "Name", "-");
+                    System.out.printf("%-15s | Phone number\n" +
+                            "%-15s%n", "Name", "-----------------------------------");
                     //call the numberFormatter method to format the numbers before printing
                     listOfContacts.numberFormatter();
                     //print the options again
@@ -73,10 +87,11 @@ public class Application {
 
                     //adds a new contact//
                     String newContactName = userInput.getString("Enter a name: ");
-                    String newContactNumber = userInput.getString("Enter a number: ");
+
+                    String validNumber = enforceNumberLength(userInput);
 
                     //create a new contact object using the name and number provided by the user
-                    Contact newContacts = new Contact(newContactName, newContactNumber);
+                    Contact newContacts = new Contact(newContactName, validNumber);
 
                     //call the addContact method to add the new contact to the list
                     listOfContacts.addContact(listOfContacts.findMatch(newContactName), newContacts, contactsFile);
