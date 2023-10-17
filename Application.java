@@ -14,41 +14,6 @@ import java.util.regex.Pattern;
 
 public class Application {
 
-    public static boolean findMatch(List<String> list, String nameToFind) {
-        for (int i = 0; i < list.size(); i++) {
-            String[] name = list.get(i).split(Pattern.quote(" | "));
-            if (name[0].equalsIgnoreCase(nameToFind)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static String returnMatch(List<String> list, String nameToFind) {
-        String match = new String();
-        for (int i = 0; i < list.size(); i++) {
-            String[] name = list.get(i).split(Pattern.quote(" | "));
-            if (name[0].equalsIgnoreCase(nameToFind)) {
-                match = list.get(i);
-            }
-        }
-        return match;
-    }
-
-    public static void numberFormatter(List<String> phoneNumber) {
-        for (int i = 0; i < phoneNumber.size(); i++) {
-            String[] name = phoneNumber.get(i).split(Pattern.quote(" | "));
-            String number = name[1].replaceFirst("(\\d{3})(\\d{3})(\\d+)", "($1)-$2-$3");
-            System.out.printf("%15s | %s%n", name[0], number);
-
-        }
-    }
-
-    public static void numberFormatter(String number) {
-        String[] name = number.split(Pattern.quote(" | "));
-        String reformatted = name[1].replaceFirst("(\\d{3})(\\d{3})(\\d+)", "($1)-$2-$3");
-        System.out.printf("%s | %s%n%n", name[0], reformatted);
-    }
 
     public static void main(String[] args) throws IOException {
 
@@ -68,8 +33,6 @@ public class Application {
             Files.createFile(contactsFile);
         }
 
-        ArrayList<String> contactInfo = new ArrayList<>();
-
 
         String options = "1. View contacts.\n" +
                 "2. Add a new contact.\n" +
@@ -82,7 +45,9 @@ public class Application {
 
 
         boolean dontExit = true;
-        List<String> listOfContacts = Files.readAllLines(contactsFile);
+        // initial read form the contacts.txt file to make sure listOfContacts is up to date
+        ContactList listOfContacts = new ContactList(contactsFile);
+        System.out.println(listOfContacts.contactList.size());
 
         do {
 
@@ -94,85 +59,70 @@ public class Application {
             String nameToDelete;
             switch (userSelection) {
                 case 1:
+
                     //view all contacts
                     System.out.printf("%15s | Phone number\n" +
                             "%10s--------------------%n", "Name", "-");
-//                    System.out.println(Files.readString(contactsFile));
-                    listOfContacts = Files.readAllLines(contactsFile);
-//                    System.out.println(listOfContacts);
-                    numberFormatter(listOfContacts);
+                    //call the numberFormatter method to format the numbers before printing
+                    listOfContacts.numberFormatter();
+                    //print the options again
                     System.out.println("\n" + options);
                     break;
+
                 case 2:
-                    //adds a new contact
+
+                    //adds a new contact//
                     String newContactName = userInput.getString("Enter a name: ");
                     String newContactNumber = userInput.getString("Enter a number: ");
 
+                    //create a new contact object using the name and number provided by the user
                     Contact newContacts = new Contact(newContactName, newContactNumber);
 
-                    if (findMatch(listOfContacts, newContactName)) {
-                        System.out.printf("There's already a contact named %s. Do you want to overwrite it? (Yes/No)\n", newContactName);
-                        boolean userAnswer = userInput.yesNo();
-                        if (userAnswer) {
-                            listOfContacts.add(newContacts.getName() + " | " + newContacts.getNumber());
-                            Files.write(contactsFile, listOfContacts);
-                        }
-                    } else {
-                        listOfContacts.add(newContacts.getName() + " | " + newContacts.getNumber());
-                    }
+                    //call the addContact method to add the new contact to the list
+                    listOfContacts.addContact(listOfContacts.findMatch(newContactName), newContacts, contactsFile);
 
-
-                    Files.write(contactsFile, listOfContacts);
-
-
+                    //print the options again
                     System.out.println("\n" + options);
-
                     break;
+
                 case 3:
+
                     //search contact by name
                     String nameToFind = userInput.getString("Enter the name of the contact you want to find:\n");
 
-                    listOfContacts = Files.readAllLines(contactsFile);
+                    //re-reads form the contacts.txt file to make sure listOfContacts is up to date
+                    listOfContacts.contactList = Files.readAllLines(contactsFile);
 
-                    for (String listOfContact : listOfContacts) {
-                        String[] name = listOfContact.split(Pattern.quote(" | "));
-                        if (name[0].contains(nameToFind)) {
-                            numberFormatter(listOfContact);
-                        }
-                    }
+                    //stores the matched name that is returned from the findMatch method
+                    String matchedName = listOfContacts.findMatch(nameToFind);
+
+                    //prints out the formatted matched contact
+                    listOfContacts.numberFormatter(matchedName);
+
+                    //print the options again
                     System.out.println("\n" + options);
                     break;
+
                 case 4:
+
                     //delete contact
                     nameToDelete = userInput.getString("Enter the name of the contact you want to delete:\n");
 
-                    listOfContacts = Files.readAllLines(contactsFile);
+                    //re-reads form the contacts.txt file to make sure listOfContacts is up to date
+                    listOfContacts.contactList = Files.readAllLines(contactsFile);
 
-                    String match = returnMatch(listOfContacts, nameToDelete);
+                    //looks to see if the request contact to delete actually exists
+                    String match = listOfContacts.findMatch(nameToDelete);
 
-                    if (returnMatch(listOfContacts, nameToDelete).isEmpty()) {
-                        System.out.printf("%s does not exist%n", nameToDelete);
+                    //deletes the contact if it does indeed exist
+                    listOfContacts.deleteContact(match, nameToDelete, contactsFile);
 
-                    } else {
-                        String[] name = match.split(Pattern.quote(" | "));
-                        System.out.printf("Are you sure you want to delete %s (Yes/No)\n", nameToDelete);
-                        boolean userAnswer = userInput.yesNo();
-                        if (userAnswer) {
-                            listOfContacts.remove(match);
-                            Files.write(contactsFile, listOfContacts);
-                            System.out.printf("%s was deleted%n", nameToDelete);
-                        } else {
-                            System.out.printf("%s was not deleted%n.", nameToDelete);
-                        }
-                    }
-
-
+                    //print the options again
                     System.out.println("\n" + options);
                     break;
 
                 case 5:
-                    //exit - write, then exit
-
+                    //exit
                     dontExit = false;
                     break;
 
