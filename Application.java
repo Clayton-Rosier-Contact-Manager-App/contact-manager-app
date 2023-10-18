@@ -124,8 +124,13 @@ public class Application {
                     //stores the matched name that is returned from the findMatch method, returns em pty string if no match is found
                     List<String> matchedNames = listOfContacts.findMatches(nameToFind);
 
-                    //checks to see if the matchedName is empty, if it is, it prints a message saying no match was found otherwise it prints matched contact
-                    listOfContacts.numberFormatter(matchedNames);
+                    if (matchedNames.isEmpty()) {
+                        System.out.println("No match found.");
+                    } else {
+                        //call the numberFormatter method to format the numbers before printing
+                        listOfContacts.numberFormatter(matchedNames);
+                    }
+
 
                     //print the options again
                     System.out.println("\n" + options);

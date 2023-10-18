@@ -155,6 +155,7 @@ public class ContactList {
             } catch (Exception e) {
                 System.out.println("Could not write to file");
             }
+            System.out.printf("%s has been added to your contacts!\n", contact.getName());
             //if there is a match, ask the user if they want to overwrite the contact
         } else {
             System.out.printf("There's already a contact named %s. Do you want to overwrite it? (Yes/No)\n", contact.getName());
