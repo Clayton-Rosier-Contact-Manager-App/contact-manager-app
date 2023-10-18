@@ -10,34 +10,42 @@ public class Input {
     }
 
     public String getString () {
-        String userInput = scanner.nextLine();
-        System.out.println(userInput);
-        return userInput;
+        try {
+            String userInput = scanner.nextLine();
+            return userInput;
+        } catch (Exception e) {
+            System.out.println("Input not valid");
+            return getString();
+        }
     }
 
     public String getString(String prompt) {
-
         System.out.println(prompt);
-
-        String newString = scanner.nextLine();
-        return newString;
-
+        try {
+            String userInput = scanner.nextLine();
+            return userInput;
+        } catch (Exception e) {
+            System.out.println("Input not valid");
+            return getString(prompt);
+        }
     }
 
     public boolean yesNo() {
         System.out.println("Would you like to continue?");
-        String answer = scanner.nextLine();
-
-        if (answer.contains("y") || answer.contains("Y")) {
-            return true;
-        } else {
-            return false;
+        try {
+            String userInput = scanner.nextLine();
+            if (userInput.equalsIgnoreCase("y") || userInput.equalsIgnoreCase("yes")) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            System.out.println("Input not valid");
+            return yesNo();
         }
     }
 
     public int getInt(int min, int max) {
-
-
         System.out.printf("Enter any number between %d and %d.%n", min, max);
 
         int userInput = scanner.nextInt();
@@ -58,10 +66,13 @@ public class Input {
         try {
             String string = getString();
             returnNumber = Integer.valueOf(string);
+            if(returnNumber < 1 || returnNumber > 5) {
+                System.out.println("Enter an option (1, 2, 3, 4 or 5):");
+                returnNumber = getInt();//recursion
+            }
 
         } catch (NumberFormatException e) {
-            System.out.println("Error");
-            e.printStackTrace();
+            System.out.println("Enter an option (1, 2, 3, 4 or 5):");
             returnNumber = getInt();//recursion
         }
 
