@@ -1,6 +1,8 @@
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -38,35 +40,79 @@ public class ContactList {
         return match;
     }
 
-    public void numberFormatter() {
-        // loop through the list of contacts
-        for (int i = 0; i < contactList.size(); i++) {
-            // split the contact into an array
-            String[] name = contactList.get(i).split(Pattern.quote(" | "));
-            // replace the numbers with the formatted numbers
-            String number = name[1].replaceFirst("(\\d{3})(\\d{3})(\\d+)", "($1)-$2-$3");
-            // print the contact with the formatted number
-            System.out.printf("%-15s | %-15s |%n", name[0], number);
 
+    //prints out the list of contacts in a formatted table
+    public void numberFormatter() {
+        // print the header
+        System.out.printf("%-15s | %-15s |%n", "Name", "Phone Number");
+        System.out.println("-----------------------------");
+        //try to print the list of contacts
+       try {
+
+            for (int i = 0; i < contactList.size(); i++) {
+                // split the contact into an array
+                String[] name = contactList.get(i).split(Pattern.quote(" | "));
+                // replace the numbers with the formatted numbers
+                String number = name[1].replaceFirst("(\\d{3})(\\d{3})(\\d+)", "($1)-$2-$3");
+                // print the contact with the formatted number
+                System.out.printf("%-15s | %-15s |%n", name[0], number);
+            }
+
+        } catch (Exception e) {
+            System.out.println("No contacts found.");
         }
     }
 
-    public void numberFormatter(String string){
 
+    //overloaded method, takes in a string of 1 contact and prints it with the formatted number
+    public void numberFormatter(String string) {
 
         if (string.isBlank()) {
-
             System.out.println("No match found.");
-
         } else {
+            // replace the numbers with the formatted numbers
             String number = string.replaceFirst("(\\d{3})(\\d{3})(\\d+)", "($1)-$2-$3");
-
             // print the contact with the formatted number
             System.out.printf("%s%n", number);
         }
 
+    }
 
+    public void numberFormatter(List<String> contactList) {
+        // print the header
+        System.out.printf("%-15s | %-15s |%n", "Name", "Phone Number");
+        System.out.println("-----------------------------");
+        //try to print the list of contacts
+        try {
 
+            for (int i = 0; i < contactList.size(); i++) {
+                // split the contact into an array
+                String[] name = contactList.get(i).split(Pattern.quote(" | "));
+                // replace the numbers with the formatted numbers
+                String number = name[1].replaceFirst("(\\d{3})(\\d{3})(\\d+)", "($1)-$2-$3");
+                // print the contact with the formatted number
+                System.out.printf("%-15s | %-15s |%n", name[0], number);
+            }
+
+        } catch (Exception e) {
+            System.out.println("No contacts found.");
+        }
+    }
+
+    public List<String> findMatches(String nameToFind) {
+        // create a new array list to hold the matches
+    List<String> matches = new ArrayList<>();
+        // loop through the list of contacts
+        for (int i = 0; i < contactList.size(); i++) {
+            // split the contact into an array
+            String[] name = contactList.get(i).split(Pattern.quote(" | "));
+            // if the first element of the array matches the name we're looking for return the contact (accounts for case sensitivity and partial matches)
+            if (name[0].toLowerCase().contains(nameToFind.toLowerCase())) {
+                matches.add(contactList.get(i));
+            }
+        }
+        // return the array list of matches even if it's empty
+        return matches;
     }
 
     public String findMatch(String nameToFind) {
@@ -74,11 +120,24 @@ public class ContactList {
         for (int i = 0; i < contactList.size(); i++) {
             // split the contact into an array
             String[] name = contactList.get(i).split(Pattern.quote(" | "));
+            // if the first element of the array matches the name we're looking for return the contact (accounts for case sensitivity and partial matches)
+            if (name[0].contains(nameToFind) || name[0].toLowerCase().contains(nameToFind.toLowerCase())) {
+               return contactList.get(i);
+            }
+
+        }
+        // if there's no match, return an empty string
+        return "";
+    }
+
+    public String findExactMatch(String nameToFind) {
+        // loop through the list of contacts
+        for (int i = 0; i < contactList.size(); i++) {
+            // split the contact into an array
+            String[] name = contactList.get(i).split(Pattern.quote(" | "));
             // if the first element of the array matches the name we're looking for, return the contact
             if (name[0].equalsIgnoreCase(nameToFind)) {
-//                System.out.println(contactList.get(i));
                 return contactList.get(i);
-
             }
         }
         // if there's no match, return an empty string
@@ -121,23 +180,26 @@ public class ContactList {
     }
 
     public void deleteContact(String string, String deleteName, Path path) {
+        //if there's no match, print that the contact doesn't exist
         if (string.isBlank()) {
             System.out.printf("%s does not exist%n", deleteName);
-
+            //if there is a match, ask the user if they want to delete the contact
         } else {
             System.out.printf("Are you sure you want to delete %s (Yes/No)\n", deleteName);
             boolean userAnswer = this.scanner.yesNo();
+            //if they say yes, remove the contact
             if (userAnswer) {
                 contactList.remove(string);
-
+                //now try to write the new list to the file
                 try {
                     Files.write(path, contactList);
                 } catch (Exception e) {
                     System.out.println("Could not write to file.");
                 }
-
+                //print that the contact was deleted
                 System.out.printf("%s was deleted.%n", deleteName);
             } else {
+                //if they say no, print that the contact was not deleted
                 System.out.printf("%s was not deleted.%n", deleteName);
             }
         }
